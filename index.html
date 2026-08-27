@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Sahana, from Devang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,600&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#7A1F2B;
+    --maroon-deep:#4A1220;
+    --gold:#C9A227;
+    --gold-light:#E8C468;
+    --cream:#FDF6E3;
+    --brown:#3D2314;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:var(--maroon-deep);
+    color:var(--cream);
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* ---------- ambient golden dust ---------- */
+  #dust{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+  .mote{
+    position:absolute;
+    width:4px;height:4px;
+    border-radius:50%;
+    background:var(--gold-light);
+    opacity:0.55;
+    animation:drift linear infinite;
+  }
+  @keyframes drift{
+    from{transform:translateY(-10vh) translateX(0);}
+    to{transform:translateY(110vh) translateX(20px);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mote{animation:none; display:none;}
+  }
+
+  /* ---------- scenes ---------- */
+  .scene{
+    position:fixed;inset:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:9vh 6vw 8vh;
+    text-align:center;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(24px);
+    transition:opacity 0.9s ease, transform 0.9s ease, visibility 0.9s;
+    z-index:2;
+    overflow-y:auto;
+  }
+  .scene::before,
+  .scene::after{
+    content:"";
+    flex:1 1 0;
+    min-height:0;
+  }
+  .scene.active{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0);
+  }
+
+  .eyebrow{
+    letter-spacing:0.35em;
+    text-transform:uppercase;
+    font-size:0.68rem;
+    color:var(--gold-light);
+    margin-bottom:1.4rem;
+    font-weight:500;
+  }
+
+  /* ---------- rakhi thread divider (signature motif) ---------- */
+  .thread{
+    width:min(70vw,340px);
+    height:34px;
+    margin:1.6rem auto;
+    opacity:0.85;
+  }
+
+  /* ---------- Scene 1: envelope ---------- */
+  #scene-envelope .envelope-wrap{
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .envelope{
+    width:min(78vw,300px);
+    height:min(52vw,200px);
+    position:relative;
+    margin:0 auto;
+  }
+  .env-body{
+    position:absolute;inset:0;
+    background:linear-gradient(160deg,#8C2A38,var(--maroon));
+    border:1.5px solid var(--gold);
+    border-radius:6px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.45);
+  }
+  .env-flap{
+    position:absolute;
+    top:0;left:0;right:0;
+    height:0;
+    border-left:150px solid transparent;
+    border-right:150px solid transparent;
+    border-top:100px solid #9C3444;
+    transform-origin:top center;
+    transition:transform 0.8s cubic-bezier(.6,-0.28,.4,1.3);
+    filter:drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+  }
+  .envelope-wrap.open .env-flap{
+    transform:rotateX(180deg);
+  }
+  .env-seal{
+    position:absolute;
+    top:38%;left:50%;
+    transform:translate(-50%,-50%);
+    width:46px;height:46px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, #9c7a12 100%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;
+    color:var(--maroon-deep);
+    box-shadow:0 4px 10px rgba(0,0,0,0.4);
+    transition:opacity 0.4s ease, transform 0.4s ease;
+    z-index:3;
+  }
+  .envelope-wrap.open .env-seal{opacity:0;transform:translate(-50%,-50%) scale(0.4);}
+  .env-letter{
+    position:absolute;
+    left:8%;right:8%;
+    top:14%;
+    height:78%;
+    background:var(--cream);
+    border-radius:3px;
+    color:var(--brown);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:0.85rem;
+    padding:1rem;
+    transform:translateY(0);
+    transition:transform 0.9s ease 0.15s;
+    z-index:2;
+  }
+  .envelope-wrap.open .env-letter{transform:translateY(-58%);}
+
+  .tap-hint{
+    margin-top:2.2rem;
+    font-size:0.78rem;
+    letter-spacing:0.08em;
+    color:var(--gold-light);
+    opacity:0.85;
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+  /* ---------- Scene 2: greeting ---------- */
+  .headline{
+    font-family:'Playfair Display',serif;
+    font-weight:700;
+    font-size:clamp(1.9rem,7vw,3.4rem);
+    color:var(--gold-light);
+    line-height:1.15;
+  }
+  .signature-name{
+    font-family:'Dancing Script',cursive;
+    font-size:clamp(2.6rem,10vw,4.6rem);
+    color:var(--cream);
+    margin-top:0.6rem;
+    display:block;
+  }
+
+  /* ---------- Scene 3: heartfelt message ---------- */
+  .heartfelt{
+    max-width:640px;
+    font-family:'Playfair Display',serif;
+    font-style:italic;
+    font-size:clamp(0.95rem,2.1vw,1.15rem);
+    line-height:1.75;
+    color:var(--cream);
+    margin-top:0.4rem;
+  }
+  .heartfelt strong{color:var(--gold-light);font-style:normal;}
+  .photo-box{
+    width:min(60vw,220px);
+    aspect-ratio:1/1;
+    border:1.5px dashed var(--gold);
+    border-radius:10px;
+    margin:1.8rem auto 0.6rem;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    background:rgba(255,255,255,0.03);
+  }
+  .photo-box img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-box span{font-size:0.72rem;letter-spacing:0.06em;color:var(--gold-light);opacity:0.75;padding:0 1rem;}
+  .video-box{position:relative;}
+  .video-box video{
+    width:100%;height:100%;
+    object-fit:cover;
+    display:block;
+    border-radius:9px;
+  }
+  .video-fallback{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+
+  /* ---------- Scene 4: gallery ---------- */
+  .gallery{
+    display:flex;
+    gap:1rem;
+    flex-wrap:wrap;
+    justify-content:center;
+    max-width:700px;
+  }
+  .gallery .photo-box{width:min(26vw,150px);margin:0;}
+  .signoff{
+    margin-top:2.4rem;
+    font-family:'Dancing Script',cursive;
+    font-size:1.6rem;
+    color:var(--gold-light);
+  }
+
+  /* ---------- nav controls ---------- */
+  .nav-row{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    margin-top:2.4rem;
+  }
+  .next-btn{
+    background:transparent;
+    border:1px solid var(--gold);
+    color:var(--gold-light);
+    padding:0.65rem 1.8rem;
+    border-radius:999px;
+    font-family:'Poppins',sans-serif;
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background 0.3s ease, color 0.3s ease;
+  }
+  .next-btn:hover{background:var(--gold);color:var(--maroon-deep);}
+  .back-btn{
+    background:none;
+    border:none;
+    color:var(--gold-light);
+    opacity:0.65;
+    font-size:1.3rem;
+    line-height:1;
+    cursor:pointer;
+    padding:0.6rem;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+  }
+  .back-btn:hover{opacity:1;transform:translateX(-3px);}
+
+  .dots{
+    position:fixed;
+    bottom:22px;left:50%;
+    transform:translateX(-50%);
+    display:flex;gap:8px;
+    z-index:5;
+  }
+  .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:rgba(232,196,104,0.35);
+    transition:background 0.3s ease, transform 0.3s ease;
+  }
+  .dot.active{background:var(--gold-light);transform:scale(1.4);}
+</style>
+</head>
+<body>
+
+<div id="dust"></div>
+
+<!-- SCENE 1 -->
+<section class="scene active" id="scene-envelope">
+  <p class="eyebrow">Raksha Bandhan · from afar</p>
+  <div class="envelope-wrap" id="envelopeWrap">
+    <div class="envelope">
+      <div class="env-body"></div>
+      <div class="env-letter">Here's a message for you&hellip;</div>
+      <div class="env-flap"></div>
+      <div class="env-seal">S</div>
+    </div>
+  </div>
+  <p class="tap-hint">tap the envelope to open</p>
+</section>
+
+<!-- SCENE 2 -->
+<section class="scene" id="scene-greeting">
+  <p class="eyebrow">Happy Raksha Bandhan</p>
+  <h1 class="headline">to my sister,
+    <span class="signature-name">Sahana</span>
+  </h1>
+  <svg class="thread" viewBox="0 0 340 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 17 C 80 -5, 130 40, 170 17 C 210 -5, 260 40, 330 17" stroke="#C9A227" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="170" cy="17" r="5" fill="#E8C468"/>
+  </svg>
+  <div class="nav-row">
+    <button class="back-btn" onclick="goTo(0)" aria-label="Back">&#8592;</button>
+    <button class="next-btn" onclick="goTo(2)">Continue</button>
+  </div>
+</section>
+
+<!-- SCENE 3 -->
+<section class="scene" id="scene-message">
+  <p class="eyebrow">From Devang</p>
+  <p class="heartfelt">
+    This is just a small message for someone who has genuinely been one of the best people in my life.
+    <br><br>
+    I've never really had the privilege of having a blood-related sister — someone I could protect, annoy, laugh with, and make memories with. But somehow, in less than a year, you've managed to become all of that and so much more. You've been both an amazing protector and, more importantly, one of my <strong>best friends</strong>.
+    <br><br>
+    You've been there through some of the lowest and highest moments of my life. Whenever my mind starts overthinking, especially during those late nights when I have a million things going through my head, I know I can always come to you. You listen, you understand, and somehow you always manage to make things feel a little easier.
+    <br><br>
+    And honestly, some of my favourite memories are the simplest ones. Walking together after tuitions, eating samosas, talking about absolutely everything, and making the most ridiculous Malayalam password jokes imaginable. They might seem like small moments, but they're the kind of memories I know I'll always cherish.
+    <br><br>
+    So, on this Raksha Bandhan, I just want to say thank you. Thank you for being there, for listening to me, for putting up with my nonsense, and for becoming someone I can genuinely call my sister.
+    <br><br>
+    I promise that from now on, I'll always be there for you too. I'll protect you, support you, annoy you when necessary, and stand by you through whatever comes your way.
+    <br><br>
+    <strong>I love you. ❤️</strong><br>
+    Happy Raksha Bandhan, Sahana. ❤️
+  </p>
+  <div class="photo-box" id="rakhiPhoto">
+    <span>rakhi.jpg</span>
+  </div>
+  <div class="nav-row">
+    <button class="back-btn" onclick="goTo(1)" aria-label="Back">&#8592;</button>
+    <button class="next-btn" onclick="goTo(3)">Continue</button>
+  </div>
+</section>
+
+<!-- SCENE 4 -->
+<section class="scene" id="scene-gallery">
+  <p class="eyebrow">A few of our moments</p>
+  <div class="gallery">
+    <div class="photo-box" id="img1"><span>image1.jpg</span></div>
+    <div class="photo-box video-box" id="vid2">
+      <video controls playsinline preload="metadata" poster="">
+        <source src="video1.mp4" type="video/mp4">
+      </video>
+      <span class="video-fallback">video1.mp4</span>
+    </div>
+    <div class="photo-box video-box" id="vid3">
+      <video controls playsinline preload="metadata" poster="">
+        <source src="video2.mp4" type="video/mp4">
+      </video>
+      <span class="video-fallback">video2.mp4</span>
+    </div>
+  </div>
+  <button class="back-btn" onclick="goTo(2)" aria-label="Back" style="margin-top:1.8rem;">&#8592;</button>
+  <p class="signoff">— with love, always. Devang</p>
+</section>
+
+<div class="dots">
+  <div class="dot active" data-i="0"></div>
+  <div class="dot" data-i="1"></div>
+  <div class="dot" data-i="2"></div>
+  <div class="dot" data-i="3"></div>
+</div>
+
+<script>
+  // ---- ambient golden dust ----
+  const dustContainer = document.getElementById('dust');
+  const MOTE_COUNT = 22;
+  for(let i=0;i<MOTE_COUNT;i++){
+    const m = document.createElement('div');
+    m.className = 'mote';
+    m.style.left = Math.random()*100 + 'vw';
+    m.style.top = (Math.random()*-100) + 'px';
+    m.style.animationDuration = (10 + Math.random()*12) + 's';
+    m.style.animationDelay = (Math.random()*10) + 's';
+    m.style.opacity = 0.25 + Math.random()*0.5;
+    dustContainer.appendChild(m);
+  }
+
+  // ---- scene navigation ----
+  const scenes = [
+    document.getElementById('scene-envelope'),
+    document.getElementById('scene-greeting'),
+    document.getElementById('scene-message'),
+    document.getElementById('scene-gallery')
+  ];
+  const dots = document.querySelectorAll('.dot');
+
+  function goTo(i){
+    scenes.forEach((s,idx)=>s.classList.toggle('active', idx===i));
+    dots.forEach((d,idx)=>d.classList.toggle('active', idx===i));
+  }
+
+  // ---- envelope open interaction ----
+  const wrap = document.getElementById('envelopeWrap');
+  wrap.addEventListener('click', ()=>{
+    if(wrap.classList.contains('open')) return;
+    wrap.classList.add('open');
+    setTimeout(()=>goTo(1), 950);
+  });
+
+  // dots are clickable too, for re-visiting
+  dots.forEach(d=>{
+    d.addEventListener('click', ()=>{
+      const i = parseInt(d.dataset.i,10);
+      if(i===0 && !wrap.classList.contains('open')) return;
+      goTo(i);
+    });
+  });
+
+  // ---- hide each video's "videoN.mp4" label once the file actually loads ----
+  document.querySelectorAll('.video-box').forEach(box=>{
+    const v = box.querySelector('video');
+    const label = box.querySelector('.video-fallback');
+    if(!v || !label) return;
+    v.addEventListener('loadeddata', ()=>{ label.style.display = 'none'; });
+    v.addEventListener('error', ()=>{ label.style.display = 'flex'; });
+  });
+</script>
+</body>
+</html>
